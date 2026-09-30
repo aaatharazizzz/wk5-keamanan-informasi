@@ -35,4 +35,4 @@ except ConnectionResetError:
      print("Disconnected from server")
 except KeyboardInterrupt:
     print("Exiting by keyboard interrupt...")
-    exit(0)
+    sys.exit(0)
