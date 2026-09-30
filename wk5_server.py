@@ -8,12 +8,27 @@ SERVER_PORT = 5050
 
 BUF_SIZE = 2048
 
+clients : list[socket.socket] = []
+
+def broadcast(data):
+    for c in clients:
+        try:
+            c.sendall(data)
+        except socket.error:
+            c.close()
+            clients.remove(c)
+
 def handle_client(client_socket : socket.socket, addr):
     while True:
-        data = client_socket.recv(BUF_SIZE)
-        if not data:
+        try:
+            data = client_socket.recv(BUF_SIZE)
+            if not data:
+                break
+            print(unpad_pkcs5(des_decrypt(data, key.to_bytes(length=8))))
+            broadcast(data)
+        except ConnectionResetError:
+            print("Client forcibly closed")
             break
-        client_socket.sendall
     client_socket.close()
 
 
@@ -22,14 +37,22 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
     server_socket.bind((SERVER_HOST, SERVER_PORT))
     print("Server is litsening...")
     server_socket.listen(5)
+    server_socket.settimeout(1.0)
+
     try:
         while True:
-            client_socket, addr = server_socket.accept()
-            threading.Thread(target=handle_client, args=(client_socket, addr)).start()
+            try:
+                client_socket, addr = server_socket.accept()
+                print("A client has connected")
+                clients.append(client_socket)
+                threading.Thread(target=handle_client, args=(client_socket, addr), daemon=True).start()
+            except socket.timeout:
+                continue
     except KeyboardInterrupt:
         print("Exiting by keyboard interrupt")
         sys.exit(0)
-    
+    finally:
+        server_socket.close()
         
 
 

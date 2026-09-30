@@ -214,7 +214,7 @@ def des_decrypt(data : Buffer, key : Buffer):
 
 def pad_pkcs5(data : bytearray):
     pad_value = 8 - (len(data) % 8)
-    return data + bytes([0x08] * pad_value)
+    return data + bytes([pad_value] * pad_value)
 
 def unpad_pkcs5(data : bytearray):
     pad_value = data[-1]
