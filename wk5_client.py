@@ -10,10 +10,13 @@ SERVER_PORT = 5050
 BUF_SIZE = 2048
 
 def receive(client_socket : socket.socket):
-    while True:
-        msg = client_socket.recv(BUF_SIZE)
-        decrypted_msg = unpad_pkcs5(des_decrypt(msg, key.to_bytes(length=8))).decode('utf-8')
-        print(decrypted_msg)
+    try:
+        while True:
+            msg = client_socket.recv(BUF_SIZE)
+            decrypted_msg = unpad_pkcs5(des_decrypt(msg, key.to_bytes(length=8))).decode('utf-8')
+            print(decrypted_msg)
+    except ConnectionResetError:
+         pass
 
 
 
@@ -25,9 +28,11 @@ receive_thread = threading.Thread(target=receive, args=[client_socket], daemon=T
 receive_thread.start()
 try:
     while True:
-            msg = input("")
+            msg = input("> ")
             encrypted_msg = des_encrypt(pad_pkcs5(bytes(msg, 'utf-8')), key.to_bytes(length=8))
             client_socket.send(encrypted_msg)
+except ConnectionResetError:
+     print("Disconnected from server")
 except KeyboardInterrupt:
     print("Exiting by keyboard interrupt...")
     exit(0)
