@@ -12,4 +12,6 @@ Tugas ini adalah untut membuat simulasi komunikasi dua arah yang terenkripsi.
 
 ## Penjelasan File
 
-`wk5_crypt.py` : Implementasi algoritma kriptografi. 
+`wk5_crypt.py` : Implementasi algoritma kriptografi. Algoritma yang terimplementasi adalah DES
+`wk5_client.py` : Program client
+`wk5_server.py` : Program server
